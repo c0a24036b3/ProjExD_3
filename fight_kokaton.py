@@ -56,6 +56,7 @@ class Bird:
         self.img = __class__.imgs[(+5, 0)]
         self.rct: pg.Rect = self.img.get_rect()
         self.rct.center = xy
+        self.dire = (+5,0)  # こうかとんの向きを表すタプルの定義
 
     def change_img(self, num: int, screen: pg.Surface):
         """
@@ -99,6 +100,7 @@ class Beam:
         self.rct.centery = bird.rct.centery
         self.rct.left = bird.rct.right  # ビームの左座標=こうかとんの右座標
         self.vx, self.vy = +5, 0
+        self.dire = bird.dire  # こうかとんのdireにアクセス
 
     def update(self, screen: pg.Surface):
         """
