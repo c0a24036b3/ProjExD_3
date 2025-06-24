@@ -164,6 +164,38 @@ class Score:
         screen.blit(self.img, self.rct)
         pg.display.update()
 
+class Explosion:
+    """
+    爆弾打ち落とし時の爆発エフェクトクラス
+    """
+    def __init__(self, bomb:"Bomb"):
+        """
+        explosion.gifと上下左右にflipしたものの
+        2つのSurfaceをリストに格納
+        rct.centerと爆発時間（life）の設定
+        引数 bombrct: 爆弾の位置 
+        """
+        self.gif1 = pg.image.load(f"fig/explosion.gif")  # explosion.gif
+        self.gif2 = pg.transform .flip(self.gif1, True, True)  # 上下左右にflipしたもの
+        self.imgs = [self.gif1,self.gif2]
+        self.img = self.gif1
+        self.rct = self.img.get_rect()
+        self.rct.center = bomb.rct
+        self.life = 3  # 爆発の表示時間
+    
+    def update(self, screen: pg.Surface):
+        """
+        爆発経過時間(life)を1減算
+        爆発経過時間(life)が正なら、Surfaceリストを交互に切り替えて爆発を演出
+        """
+        self.life-=1
+        if self.life > 0:
+            screen.blit(self.img, self.rct)
+            if self.img == self.gif1:
+                self.img = self.gif2
+            else:
+                self.img = self.gif1
+
 
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
@@ -176,6 +208,7 @@ def main():
     # beam = None  # ゲーム初期化時にはビームは存在しない
     beams = []
     score = Score()
+    explosions = []  # explosion用の空のリスト
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -203,6 +236,7 @@ def main():
             for j, beam in enumerate(beams):
                 if beam is not None:
                     if beam.rct.colliderect(bomb.rct):  # ビームと爆弾が衝突していたら
+                        explosions.append(Explosion(bombs[i]))
                         beams[j] = None
                         bombs[i] = None
                         score.score+=1
@@ -218,6 +252,8 @@ def main():
         for bomb in bombs:
             bomb.update(screen)
         score.update(screen)
+        for explosion in explosions:
+            explosion.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
